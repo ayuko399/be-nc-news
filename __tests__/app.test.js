@@ -24,3 +24,22 @@ describe("GET /api", () => {
       });
   });
 });
+
+describe("GET /api/topics", () => {
+  test("should respond with an array of topics", () => {
+    return request(app)
+      .get("/api/topics")
+      .expect(200)
+      .then(({ body }) => {
+        console.log(body, "<<<<<<<body");
+        const { topics } = body;
+        expect(topics.length).toBeGreaterThan(0);
+        topics.forEach((topic) => {
+          expect.objectContaining({
+            slug: expect.any(String),
+            description: expect.any(String),
+          });
+        });
+      });
+  });
+});
