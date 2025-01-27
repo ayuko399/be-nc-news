@@ -1,9 +1,13 @@
-# Northcoders News API
+## Setting Up Environment Variables
 
-For instructions, please head over to [L2C NC News](https://l2c.northcoders.com/courses/be/nc-news).
+This project requires two `.env` files to connect to the databases:
 
+- `.env.development` for the development database.
+- `.env.test` for the testing database.
 
+### Steps:
 
---- 
-
-This portfolio project was created as part of a Digital Skills Bootcamp in Software Engineering provided by [Northcoders](https://northcoders.com/)
+1. Create two files in the root of the project:
+   - `.env.development`
+   - `.env.test`
+2. Add this line to eachi file: `PGDATABASE=YOUR_DATABASE_NAME`, replacing `YOUR_DATABASE_NAME` with the correct name found in `/db/setup.sql`
