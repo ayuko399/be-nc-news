@@ -4,8 +4,8 @@ const testData = require("../db/data/test-data/index");
 const seed = require("../db/seeds/seed");
 const db = require("../db/connection");
 const request = require("supertest");
+require("jest-sorted");
 
-/* Set up your test imports here */
 beforeEach(() => {
   return seed(testData);
 });
@@ -31,7 +31,6 @@ describe("GET /api/topics", () => {
       .get("/api/topics")
       .expect(200)
       .then(({ body }) => {
-        console.log(body, "<<<<<<<body");
         const { topics } = body;
         expect(topics.length).toBeGreaterThan(0);
         topics.forEach((topic) => {
@@ -44,7 +43,7 @@ describe("GET /api/topics", () => {
   });
 });
 
-describe.only("GET /api/articles/:article", () => {
+describe("GET /api/articles/:article", () => {
   test("should respond with the specific article by id", () => {
     return request(app)
       .get("/api/articles/1")
@@ -79,6 +78,43 @@ describe.only("GET /api/articles/:article", () => {
       .expect(400)
       .then(({ body }) => {
         expect(body.msg).toBe("Bad Request: Invalid input");
+      });
+  });
+});
+
+describe("GET /api/articles", () => {
+  test("should respond with an array of articles", () => {
+    return request(app)
+      .get("/api/articles")
+      .expect(200)
+      .then(({ body }) => {
+        const { articles } = body;
+
+        expect(articles.length).toBe(13);
+
+        articles.forEach((article) => {
+          expect(article).toEqual(
+            expect.objectContaining({
+              author: expect.any(String),
+              title: expect.any(String),
+              article_id: expect.any(Number),
+              topic: expect.any(String),
+              created_at: expect.any(String),
+              votes: expect.any(Number),
+              article_img_url: expect.any(String),
+              comment_count: expect.any(Number),
+            })
+          );
+        });
+      });
+  });
+  test("should be sorted by date in descending order", () => {
+    return request(app)
+      .get("/api/articles")
+      .expect(200)
+      .then(({ body }) => {
+        const { articles } = body;
+        expect(articles).toBeSortedBy("created_at", { descending: true });
       });
   });
 });
