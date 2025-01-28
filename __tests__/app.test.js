@@ -287,3 +287,31 @@ describe("DELETE /api/comments/:comment_id", () => {
       });
   });
 });
+
+describe.only("GET /api/users", () => {
+  test("should respond with an array of users", () => {
+    return request(app)
+      .get("/api/users")
+      .expect(200)
+      .then(({ body }) => {
+        const { users } = body;
+        expect(users.length).toBe(4);
+
+        users.forEach((user) => {
+          expect(user).toMatchObject({
+            username: expect.any(String),
+            name: expect.any(String),
+            avatar_url: expect.any(String),
+          });
+        });
+      });
+  });
+  test("responds with 404 for incorrect endpoint spelling", () => {
+    return request(app)
+      .get("/api/usars")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Path not found");
+      });
+  });
+});
