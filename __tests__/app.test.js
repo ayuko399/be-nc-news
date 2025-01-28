@@ -146,7 +146,7 @@ describe("GET /api/articles/:article_id/comments", () => {
       .get("/api/articles/9999/comments")
       .expect(404)
       .then(({ body }) => {
-        expect(body.msg).toBe("Comment not found");
+        expect(body.msg).toBe("Article not found");
       });
   });
   test("should respond with 400 if the article_id input is invalid", () => {
@@ -155,6 +155,16 @@ describe("GET /api/articles/:article_id/comments", () => {
       .expect(400)
       .then(({ body }) => {
         expect(body.msg).toBe("Bad Request: Invalid input");
+      });
+  });
+  test("should respond with an empty array if the article exists but has no comments", () => {
+    return request(app)
+      .get("/api/articles/2/comments")
+      .expect(200)
+      .then(({ body }) => {
+        const { comments } = body;
+        expect(Array.isArray(comments)).toBe(true);
+        expect(comments.length).toBe(0);
       });
   });
 });
