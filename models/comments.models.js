@@ -13,3 +13,19 @@ exports.selectCommentsByArticleId = (article_id) => {
       return rows;
     });
 };
+
+exports.addComment = (newComment, article_id) => {
+  const { username, body } = newComment;
+  const args = [username, body, article_id];
+
+  return checkArticleExists(article_id).then(() => {
+    const SQLString = `
+      INSERT INTO comments
+      (author, body, article_id)
+      VALUES ($1, $2, $3)
+      RETURNING *`;
+    return db.query(SQLString, args).then(({ rows }) => {
+      return rows[0];
+    });
+  });
+};
