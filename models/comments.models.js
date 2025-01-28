@@ -1,4 +1,5 @@
 const db = require("../db/connection");
+const { articleData } = require("../db/data/test-data");
 const {
   checkArticleExists,
 } = require("../utility-functions/checkArticleExists");

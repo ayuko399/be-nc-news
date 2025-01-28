@@ -1,4 +1,7 @@
 const db = require("../db/connection");
+const {
+  checkArticleExists,
+} = require("../utility-functions/checkArticleExists");
 
 exports.selectArticleById = (article_id) => {
   const SQLString = `SELECT * FROM articles WHERE article_id = $1`;
@@ -33,6 +36,20 @@ exports.selectArticles = () => {
     return rows.map((article) => {
       article.comment_count = Number(article.comment_count);
       return article;
+    });
+  });
+};
+
+exports.patchArticleById = (article_id, inc_votes) => {
+  return checkArticleExists(article_id).then(() => {
+    const SQLString = `
+    UPDATE articles
+    SET votes = votes + $1
+    WHERE article_id = $2
+    RETURNING *`;
+
+    return db.query(SQLString, [inc_votes, article_id]).then(({ rows }) => {
+      return rows[0];
     });
   });
 };

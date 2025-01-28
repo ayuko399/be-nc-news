@@ -211,3 +211,57 @@ describe("POST /api/articles/:article_id/comments", () => {
       });
   });
 });
+
+describe("PATCH /api/articles/:article_id", () => {
+  test("should update the votes count by the given amount", () => {
+    const updateVotes = { inc_votes: 1 };
+
+    return request(app)
+      .patch("/api/articles/1")
+      .send(updateVotes)
+      .expect(201)
+      .then(({ body }) => {
+        const { article } = body;
+        expect(article).toMatchObject({
+          article_id: 1,
+          title: expect.any(String),
+          topic: expect.any(String),
+          author: expect.any(String),
+          body: expect.any(String),
+          created_at: expect.any(String),
+          votes: 101,
+          article_img_url: expect.any(String),
+        });
+      });
+  });
+  test("should respond with 404 if the article does not exist", () => {
+    const updateVotes = { inc_votes: 1 };
+    return request(app)
+      .patch("/api/articles/9999")
+      .send(updateVotes)
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Article not found");
+      });
+  });
+  test("should respond with 400 if the input is invalid", () => {
+    const updateVotes = { inc_votes: "abc" };
+    return request(app)
+      .patch("/api/articles/1")
+      .send(updateVotes)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad Request: Invalid input");
+      });
+  });
+  test("should respond with 400 if there is no input", () => {
+    const updatedVotes = {};
+    return request(app)
+      .patch("/api/articles/1")
+      .send(updatedVotes)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad Request: missing required fields");
+      });
+  });
+});
