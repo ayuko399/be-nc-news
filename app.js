@@ -33,6 +33,8 @@ app.use((err, req, res, next) => {
     res.status(err.status).send({ msg: err.msg });
   } else if (err.code === "22P02") {
     res.status(400).send({ msg: "Bad Request: Invalid input" });
+  } else if (err.code === "23502") {
+    res.status(400).send({ msg: "Bad Request: missing required fields" });
   } else {
     console.error(err);
     res.status(500).send({ msg: "Internal Server Error" });
