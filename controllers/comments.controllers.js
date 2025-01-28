@@ -22,7 +22,10 @@ exports.postComments = (req, res, next) => {
     .then((comment) => {
       res.status(201).send({ comment });
     })
-    .catch(next);
+    .catch((err) => {
+      console.log(err, "<<<<<<<<err");
+      next(err);
+    });
 };
 
 exports.deleteComments = (req, res, next) => {
