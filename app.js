@@ -9,6 +9,7 @@ const {
 } = require("./controllers/articles.controllers");
 const {
   getCommentsByArticleId,
+  postComments,
 } = require("./controllers/comments.controllers");
 
 app.use(express.json());
