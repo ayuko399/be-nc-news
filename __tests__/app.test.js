@@ -352,7 +352,7 @@ describe("GET /api/users", () => {
   });
 });
 
-describe.only("GET /api/articles(sorting queries)", () => {
+describe("GET /api/articles(sorting queries)", () => {
   test("serves an array of articles sorted by created_at descending as default", () => {
     return request(app)
       .get("/api/articles")
