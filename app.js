@@ -6,6 +6,7 @@ const { getTopics, getEndpoints } = require("./controllers/topics.controllers");
 const {
   getArticleById,
   getArticles,
+  patchArticleById,
 } = require("./controllers/articles.controllers");
 const {
   getCommentsByArticleId,
