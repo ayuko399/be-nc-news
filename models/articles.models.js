@@ -13,8 +13,36 @@ exports.selectArticleById = (article_id) => {
   });
 };
 
-exports.selectArticles = () => {
-  let SQLString = `
+exports.selectArticles = (query = {}) => {
+  const { sort_by = "created_at", order = "desc" } = query;
+
+  const greenList = [
+    "created_at",
+    "author",
+    "title",
+    "article_id",
+    "topic",
+    "votes",
+    "article_img_url",
+  ];
+
+  const validOrder = ["asc", "desc"];
+
+  if (!greenList.includes(sort_by)) {
+    return Promise.reject({
+      status: 400,
+      msg: "Bad request: Invalid sort_by column",
+    });
+  }
+
+  if (!validOrder.includes(order)) {
+    return Promise.reject({
+      status: 400,
+      msg: "Bad request: Invalid order value",
+    });
+  }
+
+  let sqlString = `
   SELECT
     articles.author,
     articles.title,
@@ -27,9 +55,10 @@ exports.selectArticles = () => {
   FROM articles
   LEFT JOIN comments ON articles.article_id = comments.article_id
   GROUP BY articles.article_id
-  ORDER BY articles.created_at DESC`;
+  ORDER BY ${sort_by} ${order}
+`;
 
-  return db.query(SQLString).then(({ rows }) => {
+  return db.query(sqlString).then(({ rows }) => {
     if (rows.length === 0) {
       return Promise.reject({ status: 404, msg: "not found" });
     }
@@ -53,3 +82,6 @@ exports.patchArticleById = (article_id, inc_votes) => {
     });
   });
 };
+
+//  GROUP BY articles.article_id
+// ORDER BY articles.created_at DESC

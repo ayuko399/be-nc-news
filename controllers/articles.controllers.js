@@ -15,14 +15,12 @@ exports.getArticleById = (req, res, next) => {
 };
 
 exports.getArticles = (req, res, next) => {
-  selectArticles()
+  const query = req.query;
+  selectArticles(query)
     .then((articles) => {
       res.status(200).send({ articles });
     })
-    .catch((err) => {
-      console.log(err);
-      next(err);
-    });
+    .catch(next);
 };
 
 exports.patchArticleById = (req, res, next) => {
