@@ -168,3 +168,46 @@ describe("GET /api/articles/:article_id/comments", () => {
       });
   });
 });
+
+describe("POST /api/articles/:article_id/comments", () => {
+  test("should add a new comment to the corresponding article specified by id", () => {
+    const testComment = {
+      username: "butter_bridge",
+      body: "This is a body of the test comment",
+    };
+    return request(app)
+      .post("/api/articles/1/comments")
+      .send(testComment)
+      .expect(201)
+      .then(({ body }) => {
+        const { comment } = body;
+        expect(comment.author).toBe("butter_bridge");
+        expect(comment.body).toBe("This is a body of the test comment");
+      });
+  });
+  test("should respond with 400 for missing required fields", () => {
+    const testComment = {
+      body: "missing username",
+    };
+    return request(app)
+      .post("/api/articles/1/comments")
+      .send(testComment)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad Request: missing required fields");
+      });
+  });
+  test("should respond with 400 for invalid data types for article-id", () => {
+    const testComment = {
+      username: "butter_bridge",
+      body: "This is a body of the test comment",
+    };
+    return request(app)
+      .post("/api/articles/not-a-number/comments")
+      .send(testComment)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad Request: Invalid input");
+      });
+  });
+});
