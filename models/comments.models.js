@@ -2,6 +2,7 @@ const db = require("../db/connection");
 const { articleData } = require("../db/data/test-data");
 const {
   checkArticleExists,
+  checkCommentExists,
 } = require("../utility-functions/checkArticleExists");
 
 exports.selectCommentsByArticleId = (article_id) => {
@@ -28,5 +29,12 @@ exports.addComment = (newComment, article_id) => {
     return db.query(SQLString, args).then(({ rows }) => {
       return rows[0];
     });
+  });
+};
+
+exports.deleteCommentById = (comment_id) => {
+  return checkCommentExists(comment_id).then(() => {
+    const SQLString = `DELETE FROM comments WHERE comment_id = $1`;
+    return db.query(SQLString, [comment_id]);
   });
 };

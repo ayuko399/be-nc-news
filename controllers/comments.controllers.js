@@ -1,6 +1,7 @@
 const {
   selectCommentsByArticleId,
   addComment,
+  deleteCommentById,
 } = require("../models/comments.models");
 
 exports.getCommentsByArticleId = (req, res, next) => {
@@ -22,4 +23,18 @@ exports.postComments = (req, res, next) => {
       res.status(201).send({ comment });
     })
     .catch(next);
+};
+
+exports.deleteComments = (req, res, next) => {
+  const { comment_id } = req.params;
+  console.log(comment_id, "<<<<<<comment_id");
+
+  deleteCommentById(comment_id)
+    .then(() => {
+      res.status(204).send("success");
+    })
+    .catch((err) => {
+      console.log(err, "<<<<<<<<<<<<<<,err");
+      next(err);
+    });
 };
