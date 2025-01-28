@@ -20,16 +20,23 @@ exports.addComment = (newComment, article_id) => {
   const { username, body } = newComment;
   const args = [username, body, article_id];
 
-  return checkArticleExists(article_id).then(() => {
-    const sqlString = `
+  return checkArticleExists(article_id)
+    .then(() => {
+      return db.query(`SELECT * FROM users WHERE username = $1`, [username]);
+    })
+    .then(({ rows }) => {
+      if (rows.length === 0) {
+        return Promise.reject({ status: 404, msg: "Username not found" });
+      }
+      const sqlString = `
       INSERT INTO comments
       (author, body, article_id)
       VALUES ($1, $2, $3)
       RETURNING *`;
-    return db.query(sqlString, args).then(({ rows }) => {
-      return rows[0];
+      return db.query(sqlString, args).then(({ rows }) => {
+        return rows[0];
+      });
     });
-  });
 };
 
 exports.deleteCommentById = (comment_id) => {

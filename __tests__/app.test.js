@@ -187,7 +187,7 @@ describe("POST /api/articles/:article_id/comments", () => {
   });
   test("should respond with 400 for missing required fields", () => {
     const testComment = {
-      body: "missing username",
+      username: "butter_bridge",
     };
     return request(app)
       .post("/api/articles/1/comments")
@@ -208,6 +208,32 @@ describe("POST /api/articles/:article_id/comments", () => {
       .expect(400)
       .then(({ body }) => {
         expect(body.msg).toBe("Bad Request: Invalid input");
+      });
+  });
+  test("404: responds with error when username does not exist", () => {
+    const testComment = {
+      username: "non_existent_user",
+      body: "This is a body of the test comment",
+    };
+    return request(app)
+      .post("/api/articles/1/comments")
+      .send(testComment)
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Username not found");
+      });
+  });
+  test("responds with 404 when article_id does not exist", () => {
+    const testComment = {
+      username: "butter_bridge",
+      body: "This is a body of the test comment",
+    };
+    return request(app)
+      .post("/api/articles/9999/comments")
+      .send(testComment)
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Article not found");
       });
   });
 });
@@ -242,6 +268,16 @@ describe("PATCH /api/articles/:article_id", () => {
       .expect(404)
       .then(({ body }) => {
         expect(body.msg).toBe("Article not found");
+      });
+  });
+  test("should respond with 400 for invalid article_id", () => {
+    const updateVotes = { inc_votes: 1 };
+    return request(app)
+      .patch("/api/articles/not-a-number")
+      .send(updateVotes)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad Request: Invalid input");
       });
   });
   test("should respond with 400 if the input is invalid", () => {
