@@ -23,3 +23,9 @@ exports.postComments = (req, res, next) => {
     })
     .catch(next);
 };
+
+exports.patchArticleById = (req, res, next) => {
+  const { article_id } = req.params;
+  const updateArticle = req.body;
+  console.log("hello from controller");
+};
