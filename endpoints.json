@@ -89,5 +89,18 @@
         "article_img_url": "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700"
       }
     }
-  }
+  },
+    "DELETE /api/comments/:comment_id": {
+      "description": "Deletes a comment by comment_id",
+      "queries": [],
+      "request body": "none required",
+      "exampleResponse": {
+        "status": 204,
+        "msg": "No content - comment successfully deleted"
+      },
+      "possibleErrors": {
+        "404": "Comment not found - if comment_id does not exist",
+        "400": "Bad request - if comment_id is invalid (e.g. not a number)"
+      }
+    }
 }
