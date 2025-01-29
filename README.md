@@ -21,7 +21,7 @@ Installation:
 2. Install
    `npm install`
 
-3. Create two. env files in the rood directory. Make sure these files are listed in .gitignore so they don’t get pushed to GitHub.
+3. Create two .env files in the rood directory. Make sure these files are listed in .gitignore so they don’t get pushed to GitHub.
 
 - `.env.development` for the development database.
 - `.env.test` for the testing database.
