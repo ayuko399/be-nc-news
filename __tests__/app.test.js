@@ -396,7 +396,6 @@ describe("GET /api/articles(topic query)", () => {
       .get("/api/articles?topic=mitch")
       .expect(200)
       .then(({ body }) => {
-        console.log(body, "<<<<<<<<<<<<body from test");
         const { articles } = body;
         expect(articles.length).toBe(12);
 
