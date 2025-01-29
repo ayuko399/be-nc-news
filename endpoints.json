@@ -15,6 +15,7 @@
     "exampleResponse": {
       "articles": [
         {
+          "article_id": 1,
           "title": "Seafood substitutions are increasing",
           "topic": "cooking",
           "author": "weegembump",
@@ -27,7 +28,7 @@
     }
   },
   "GET /api/articles/:article_id": {
-    "description": "serves an article with the specified id",
+    "description": "serves an article with the specified id, including the comment count",
     "queries": [],
     "exampleResponse": {
       "article_id": 1,
@@ -37,47 +38,50 @@
       "body": "I find this existence challenging",
       "created_at": "2020-07-09T20:11:00.000Z",
       "votes": 100,
+      "comment_count": 6,
       "article_img_url": "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700"
     }
   },
   "GET /api/articles/:article_id/comments": {
-    "description": "serves comments with the specified id",
+    "description": "serves comments with the specified article_id",
     "queries": [],
-    "exampleResponse": 
-      [{
+    "exampleResponse": [
+      {
         "comment_id": 18,
         "body": "This morning, I showered for nine minutes.",
         "article_id": 1,
         "author": "butter_bridge",
         "votes": 16,
         "created_at": "2020-07-21T00:20:00.000Z"
-      }]
+      }
+    ]
   },
   "POST /api/articles/:article_id/comments": {
     "description": "Posts a comment for the specified article_id.",
     "request body": {
-
+      "username": "string - the username of the user posting the comment",
+      "body": "string - the content of the comment"
     },
-    "queries": ["body", "username"],
-    "exampleResponse":{
-        "comment_id": 18,
-        "body": "This morning, I showered for nine minutes.",
-        "article_id": 1,
-        "author": "butter_bridge",
-        "votes": 0,
-        "created_at": "2020-07-21T00:20:00.000Z"
+    "queries": [],
+    "exampleResponse": {
+      "comment_id": 18,
+      "body": "This morning, I showered for nine minutes.",
+      "article_id": 1,
+      "author": "butter_bridge",
+      "votes": 0,
+      "created_at": "2020-07-21T00:20:00.000Z"
     }
   },
   "PATCH /api/articles/:article_id": {
     "description": "Updates the votes on the specified article by the given amount",
-    "request body(required)": {
+    "request body": {
       "inc_votes": "number - indicates how much the votes property should be updated by"
     },
     "queries": [],
     "exampleRequest": {
       "inc_votes": 1
     },
-    "exampleResponse":{
+    "exampleResponse": {
       "article": {
         "article_id": 1,
         "title": "Living in the shadow of a great man",
@@ -90,17 +94,30 @@
       }
     }
   },
-    "DELETE /api/comments/:comment_id": {
-      "description": "Deletes a comment by comment_id",
-      "queries": [],
-      "request body": "none required",
-      "exampleResponse": {
-        "status": 204,
-        "msg": "No content - comment successfully deleted"
-      },
-      "possibleErrors": {
-        "404": "Comment not found - if comment_id does not exist",
-        "400": "Bad request - if comment_id is invalid (e.g. not a number)"
-      }
+  "DELETE /api/comments/:comment_id": {
+    "description": "Deletes a comment by comment_id",
+    "queries": [],
+    "request body": "none required",
+    "exampleResponse": {
+      "status": 204,
+      "msg": "No content - comment successfully deleted"
+    },
+    "possibleErrors": {
+      "404": "Comment not found - if comment_id does not exist",
+      "400": "Bad request - if comment_id is invalid (e.g. not a number)"
     }
+  },
+  "GET /api/users": {
+    "description": "serves an array of all users",
+    "queries": [],
+    "exampleResponse": {
+      "users": [
+        {
+          "username": "butter_bridge",
+          "name": "Jonny",
+          "avatar_url": "https://www.example.com/avatar.jpg"
+        }
+      ]
+    }
+  }
 }
