@@ -97,6 +97,7 @@ describe("GET /api/articles", () => {
             expect.objectContaining({
               author: expect.any(String),
               title: expect.any(String),
+              body: expect.any(String),
               article_id: expect.any(Number),
               topic: expect.any(String),
               created_at: expect.any(String),
@@ -385,6 +386,46 @@ describe("GET /api/articles(sorting queries)", () => {
       .expect(400)
       .then(({ body }) => {
         expect(body.msg).toBe("Bad request: Invalid order value");
+      });
+  });
+});
+
+describe("GET /api/articles(topic query)", () => {
+  test("serves an array of articles with the topics specified", () => {
+    return request(app)
+      .get("/api/articles?topic=mitch")
+      .expect(200)
+      .then(({ body }) => {
+        console.log(body, "<<<<<<<<<<<<body from test");
+        const { articles } = body;
+        expect(articles.length).toBe(12);
+
+        articles.forEach((article) => {
+          expect(article).toMatchObject({
+            title: expect.any(String),
+            topic: "mitch",
+            author: expect.any(String),
+            created_at: expect.any(String),
+            votes: expect.any(Number),
+            article_img_url: expect.any(String),
+          });
+        });
+      });
+  });
+  test("responds with 400 for invalid filter category", () => {
+    return request(app)
+      .get("/api/articles?title=mitch")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Invalid query parameter");
+      });
+  });
+  test("responds with 200 with empty array when topic exists but has no articles", () => {
+    return request(app)
+      .get("/api/articles?topic=paper")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.articles).toEqual([]);
       });
   });
 });
