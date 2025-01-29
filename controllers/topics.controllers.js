@@ -1,9 +1,9 @@
 const { selectTopics } = require("../models/topics.models");
 
 exports.getTopics = (req, res, next) => {
-  const queries = req.query;
+  const query = req.query;
 
-  selectTopics(queries)
+  selectTopics(query)
     .then((topics) => {
       res.status(200).send({ topics });
     })

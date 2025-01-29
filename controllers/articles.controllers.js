@@ -16,6 +16,7 @@ exports.getArticleById = (req, res, next) => {
 
 exports.getArticles = (req, res, next) => {
   const query = req.query;
+  console.log(query, "<<<<<<<<query from controller");
   selectArticles(query)
     .then((articles) => {
       res.status(200).send({ articles });
