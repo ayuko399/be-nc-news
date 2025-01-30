@@ -8,15 +8,8 @@ const { checkExists } = require("../utility-functions/checkExists");
 exports.selectArticleById = (article_id) => {
   const SQLString = `
   SELECT
-    articles.article_id,
-    articles.title,
-    articles.topic,
-    articles.author,
-    articles.body,
-    articles.created_at,
-    articles.votes,
-    articles.article_img_url,
-    COUNT(comments.comment_id) AS comment_count
+    articles.*,
+    COUNT(comments.comment_id)::INT AS comment_count
   FROM articles 
   LEFT JOIN comments ON articles.article_id = comments.article_id
   WHERE articles.article_id = $1
@@ -26,10 +19,7 @@ exports.selectArticleById = (article_id) => {
     if (rows.length === 0) {
       return Promise.reject({ status: 404, msg: "Article not found" });
     }
-    return {
-      ...rows[0],
-      comment_count: Number(rows[0].comment_count),
-    };
+    return rows[0];
   });
 };
 
@@ -58,7 +48,7 @@ exports.selectArticles = (query = {}) => {
   articles.created_at,
   articles.votes,
   articles.article_img_url,
-  COUNT (comments.comment_id) AS comment_count
+  COUNT (comments.comment_id)::INT AS comment_count
   FROM articles
   LEFT JOIN comments ON articles.article_id = comments.article_id
   `;
@@ -97,10 +87,7 @@ exports.selectArticles = (query = {}) => {
         return db.query(sqlString, args);
       })
       .then(({ rows }) => {
-        return rows.map((article) => ({
-          ...article,
-          comment_count: Number(article.comment_count),
-        }));
+        return rows;
       });
   }
 
@@ -112,10 +99,7 @@ exports.selectArticles = (query = {}) => {
     if (rows.length === 0) {
       return [];
     }
-    return rows.map((article) => ({
-      ...article,
-      comment_count: Number(article.comment_count),
-    }));
+    return rows;
   });
 };
 
