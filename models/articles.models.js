@@ -40,14 +40,7 @@ exports.selectArticles = (query = {}) => {
 
   let sqlString = `
   SELECT
-  articles.author,
-  articles.title,
-  articles.article_id,
-  articles.topic,
-  articles.body,
-  articles.created_at,
-  articles.votes,
-  articles.article_img_url,
+  articles.*,
   COUNT (comments.comment_id)::INT AS comment_count
   FROM articles
   LEFT JOIN comments ON articles.article_id = comments.article_id
@@ -77,7 +70,7 @@ exports.selectArticles = (query = {}) => {
   }
 
   if (topic) {
-    return checkExists("topics", "topic", topic) // Check topics table first
+    return checkExists("topics", "topic", topic)
       .then(() => {
         sqlString += ` WHERE articles.topic = $1`;
         args.push(topic);
