@@ -2,7 +2,6 @@ const db = require("../db/connection");
 const {
   checkArticleExists,
 } = require("../utility-functions/checkArticleExists");
-
 const { checkExists } = require("../utility-functions/checkExists");
 
 exports.selectArticleById = (article_id) => {
@@ -108,4 +107,32 @@ exports.patchArticleById = (article_id, inc_votes) => {
       return rows[0];
     });
   });
+};
+
+exports.createArticle = (content = {}) => {
+  const {
+    author,
+    title,
+    body,
+    topic,
+    article_img_url = "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+  } = content;
+
+  let sqlString = `
+  INSERT INTO articles
+  (title, topic, author, body, article_img_url)
+  VALUES ($1, $2, $3, $4, $5)
+  RETURNING *`;
+  const args = [title, topic, author, body, article_img_url];
+
+  const topicExists = checkExists("topics", "topic", topic);
+  const usernameExists = checkExists("users", "username", author);
+
+  return Promise.all([topicExists, usernameExists]).then(
+    ([topicResult, userResult]) => {
+      return db.query(sqlString, args).then(({ rows }) => {
+        return rows[0];
+      });
+    }
+  );
 };

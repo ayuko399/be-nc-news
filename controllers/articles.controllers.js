@@ -2,6 +2,7 @@ const {
   selectArticleById,
   selectArticles,
   patchArticleById,
+  createArticle,
 } = require("../models/articles.models");
 
 exports.getArticleById = (req, res, next) => {
@@ -28,6 +29,16 @@ exports.patchArticleById = (req, res, next) => {
   const { inc_votes } = req.body;
 
   patchArticleById(article_id, inc_votes)
+    .then((article) => {
+      res.status(201).send({ article });
+    })
+    .catch(next);
+};
+
+exports.postArticle = (req, res, next) => {
+  const content = req.body;
+
+  createArticle(content)
     .then((article) => {
       res.status(201).send({ article });
     })

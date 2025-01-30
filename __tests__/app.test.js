@@ -526,3 +526,99 @@ describe("PATCH /api/comments/:comment_id", () => {
       });
   });
 });
+
+describe("POST /api/articles", () => {
+  test("posts a new article with the given inputs from the request body", () => {
+    const newArticle = {
+      title: "Test: Posting Article",
+      topic: "mitch",
+      author: "butter_bridge",
+      body: "test body: this is a test body",
+      article_img_url:
+        "https://images.pexels.com/photos/47343/the-ball-stadion-horn-corner-47343.jpeg?w=700&h=700",
+    };
+    return request(app)
+      .post("/api/articles")
+      .send(newArticle)
+      .then(({ body }) => {
+        const { article } = body;
+        expect(article).toMatchObject({
+          article_id: expect.any(Number),
+          title: "Test: Posting Article",
+          topic: "mitch",
+          author: "butter_bridge",
+          body: "test body: this is a test body",
+          created_at: expect.any(String),
+          votes: 0,
+          article_img_url:
+            "https://images.pexels.com/photos/47343/the-ball-stadion-horn-corner-47343.jpeg?w=700&h=700",
+        });
+      });
+  });
+  test("posts a new article with the default article_img_url if it is not provided", () => {
+    const newArticle = {
+      title: "Test: Posting Article",
+      topic: "mitch",
+      author: "butter_bridge",
+      body: "test body: this is a test body",
+    };
+    return request(app)
+      .post("/api/articles")
+      .send(newArticle)
+      .then(({ body }) => {
+        const { article } = body;
+        expect(article).toMatchObject({
+          article_id: expect.any(Number),
+          title: "Test: Posting Article",
+          topic: "mitch",
+          author: "butter_bridge",
+          body: "test body: this is a test body",
+          created_at: expect.any(String),
+          votes: 0,
+          article_img_url:
+            "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+        });
+      });
+  });
+  test("responds with 400 if there is missing required fields", () => {
+    const newArticle = {
+      topic: "mitch",
+      author: "butter_bridge",
+      body: "test body: this is a test body",
+    };
+    return request(app)
+      .post("/api/articles")
+      .send(newArticle)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad Request: missing required fields");
+      });
+  });
+  test("responds with 404 if the author does not exist", () => {
+    const newArticle = {
+      topic: "mitch",
+      author: "does_not_exist",
+      body: "test body: this is a test body",
+    };
+    return request(app)
+      .post("/api/articles")
+      .send(newArticle)
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("username not found");
+      });
+  });
+  test("responds with 404 if the topic does not exist", () => {
+    const newArticle = {
+      topic: "does_not_exist",
+      author: "butter_bridge",
+      body: "test body: this is a test body",
+    };
+    return request(app)
+      .post("/api/articles")
+      .send(newArticle)
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("topic not found");
+      });
+  });
+});

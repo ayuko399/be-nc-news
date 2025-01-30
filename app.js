@@ -14,7 +14,7 @@ app.get("/api", (req, res) => {
 });
 
 app.use("/api/topics", topicsRouter);
-app.use("/api/articles/", articlesRouter);
+app.use("/api/articles", articlesRouter);
 app.use("/api/comments", commentsRouter);
 app.use("/api/users", usersRouter);
 
