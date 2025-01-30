@@ -45,3 +45,19 @@ exports.deleteCommentById = (comment_id) => {
     return db.query(sqlString, [comment_id]);
   });
 };
+
+exports.updateCommentById = (comment_id, inc_votes) => {
+  return checkCommentExists(comment_id)
+    .then(() => {
+      const sqlString = `
+     UPDATE comments
+     SET votes = votes + $1
+     WHERE comment_id =  $2
+     RETURNING *`;
+
+      return db.query(sqlString, [inc_votes, comment_id]);
+    })
+    .then(({ rows }) => {
+      return rows[0];
+    });
+};

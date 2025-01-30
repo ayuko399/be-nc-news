@@ -465,3 +465,64 @@ describe("GET /api/users/:username", () => {
       });
   });
 });
+
+describe("PATCH /api/comments/:comment_id", () => {
+  test("updates the votes on a comment with the specified id", () => {
+    const updateVotesParam = { inc_votes: 1 };
+    return request(app)
+      .patch("/api/comments/1")
+      .send(updateVotesParam)
+      .expect(201)
+      .then(({ body }) => {
+        const { comment } = body;
+        expect(comment).toMatchObject({
+          body: "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!",
+          votes: 17,
+          author: "butter_bridge",
+          article_id: 9,
+          created_at: expect.any(String),
+        });
+        expect(comment.votes).toBe(17);
+      });
+  });
+  test("returns 404 if the comment_id does not exist", () => {
+    const updateVotesParam = { inc_votes: 1 };
+    return request(app)
+      .patch("/api/comments/9999")
+      .send(updateVotesParam)
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Comment not found");
+      });
+  });
+  test("returns 400 if the comment_id is invalid", () => {
+    const updateVotesParam = { inc_votes: 1 };
+    return request(app)
+      .patch("/api/comments/not-a-number")
+      .send(updateVotesParam)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad Request: Invalid input");
+      });
+  });
+  test("returns 400 if the input in the field is invalid", () => {
+    const updateVotesParam = { inc_votes: "not-a-number" };
+    return request(app)
+      .patch("/api/comments/1")
+      .send(updateVotesParam)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad Request: Invalid input");
+      });
+  });
+  test("returns 400 if the input in the field is missing", () => {
+    const updateVotesParam = {};
+    return request(app)
+      .patch("/api/comments/1")
+      .send(updateVotesParam)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad Request: missing required fields");
+      });
+  });
+});
