@@ -15,11 +15,9 @@ exports.getUserByUsername = (req, res, next) => {
 
   selectUserByUsername(username)
     .then((user) => {
-      console.log(user, "<<<<<<<user");
       res.status(200).send({ user });
     })
     .catch((err) => {
-      console.log(err, "<<<<<<<<<error from controller");
       next(err);
     });
 };

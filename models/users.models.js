@@ -1,4 +1,5 @@
 const db = require("../db/connection");
+const {} = require("");
 
 exports.selectUsers = () => {
   const sqlString = `SELECT * FROM users`;
