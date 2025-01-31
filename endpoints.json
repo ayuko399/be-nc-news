@@ -175,5 +175,17 @@
       "comment_count": 6,
       "article_img_url": "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700"
     }
+  },
+  "POST /api/topics":{
+    "description": "posts a new topic",
+    "exampleRequest": {
+      "slug": "football",
+      "description": "a type of sports"
+    },
+    "queries": [],
+    "exampleResponse": {
+      "slug": "football",
+      "description": "a type of sports"
+    }
   }
 }

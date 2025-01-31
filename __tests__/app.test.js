@@ -851,3 +851,39 @@ describe("GET /api/articles/:article_id/comments (pagination)", () => {
       });
   });
 });
+
+describe("POST /api/topics", () => {
+  test("posts a new topic", () => {
+    const newTopic = { slug: "test topic", description: "test description" };
+    return request(app)
+      .post("/api/topics")
+      .send(newTopic)
+      .then(({ body }) => {
+        const { topic } = body;
+        expect(topic).toMatchObject({
+          slug: "test topic",
+          description: "test description",
+        });
+      });
+  });
+  test("responds with 404 if the topic already exists", () => {
+    const newTopic = { slug: "cats", description: "test description" };
+    return request(app)
+      .post("/api/topics")
+      .send(newTopic)
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("topic already exists");
+      });
+  });
+  test("responds with 400 if there is a missing field", () => {
+    const newTopic = { description: "test description" };
+    return request(app)
+      .post("/api/topics")
+      .send(newTopic)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad Request: missing required fields");
+      });
+  });
+});
