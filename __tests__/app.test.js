@@ -88,9 +88,9 @@ describe("GET /api/articles", () => {
       .get("/api/articles")
       .expect(200)
       .then(({ body }) => {
-        const { articles } = body;
+        const { articles } = body.articles;
 
-        expect(articles.length).toBe(13);
+        expect(articles.length).toBe(10);
 
         articles.forEach((article) => {
           expect(article).toEqual(
@@ -114,7 +114,7 @@ describe("GET /api/articles", () => {
       .get("/api/articles")
       .expect(200)
       .then(({ body }) => {
-        const { articles } = body;
+        const { articles } = body.articles;
         expect(articles).toBeSortedBy("created_at", { descending: true });
       });
   });
@@ -359,7 +359,7 @@ describe("GET /api/articles(sorting queries)", () => {
       .get("/api/articles")
       .expect(200)
       .then(({ body }) => {
-        const { articles } = body;
+        const { articles } = body.articles;
         expect(articles).toBeSortedBy("created_at", { descending: true });
       });
   });
@@ -368,7 +368,7 @@ describe("GET /api/articles(sorting queries)", () => {
       .get("/api/articles?sort_by=title&order=asc")
       .expect(200)
       .then(({ body }) => {
-        const { articles } = body;
+        const { articles } = body.articles;
         expect(articles).toBeSortedBy("title", { descending: false });
       });
   });
@@ -396,8 +396,8 @@ describe("GET /api/articles(topic query)", () => {
       .get("/api/articles?topic=mitch")
       .expect(200)
       .then(({ body }) => {
-        const { articles } = body;
-        expect(articles.length).toBe(12);
+        const { articles } = body.articles;
+        expect(articles.length).toBe(10);
 
         articles.forEach((article) => {
           expect(article).toMatchObject({
@@ -619,6 +619,140 @@ describe("POST /api/articles", () => {
       .expect(404)
       .then(({ body }) => {
         expect(body.msg).toBe("topic not found");
+      });
+  });
+});
+
+describe("GET /api/articles(pagination)", () => {
+  test("serves articles with the default of 10 articles with page 1", () => {
+    return request(app)
+      .get("/api/articles")
+      .expect(200)
+      .then(({ body }) => {
+        const { articles } = body.articles;
+        const { total_count } = body.articles;
+        expect(articles.length).toBe(10);
+        expect(total_count).toBe(10);
+      });
+  });
+  test("serves articles with queries specifying the limit with the defaul page number 1", () => {
+    return request(app)
+      .get("/api/articles?limit=5")
+      .expect(200)
+      .then(({ body }) => {
+        const { articles } = body.articles;
+        const { total_count } = body.articles;
+        expect(articles.length).toBe(5);
+        expect(total_count).toBe(5);
+      });
+  });
+  test("serves articles with queries specifying the limit with the defaul page number 2", () => {
+    return request(app)
+      .get("/api/articles?limit=5&p=2")
+      .expect(200)
+      .then(({ body }) => {
+        const { articles } = body.articles;
+        const { total_count } = body.articles;
+        expect(articles.length).toBe(3);
+        expect(total_count).toBe(3);
+      });
+  });
+  test("serves articles with queries with default limit and page number, but with topic specified", () => {
+    return request(app)
+      .get("/api/articles?topic=mitch")
+      .expect(200)
+      .then(({ body }) => {
+        const { articles } = body.articles;
+        const { total_count } = body.articles;
+        expect(articles.length).toBe(10);
+        expect(total_count).toBe(10);
+      });
+  });
+  test("serves articles with queries specifying the limit and the topic", () => {
+    return request(app)
+      .get("/api/articles?topic=mitch&limit=5")
+      .expect(200)
+      .then(({ body }) => {
+        const { articles } = body.articles;
+        const { total_count } = body.articles;
+        expect(articles.length).toBe(5);
+        expect(total_count).toBe(5);
+      });
+  });
+  test("serves articles with queries specifying the limit. page num, and the topic", () => {
+    return request(app)
+      .get("/api/articles?topic=mitch&limit=5&p=2")
+      .expect(200)
+      .then(({ body }) => {
+        const { articles } = body.articles;
+        const { total_count } = body.articles;
+        expect(articles.length).toBe(2);
+        expect(total_count).toBe(2);
+      });
+  });
+  test("responds with 400 if invalid input for limit", () => {
+    return request(app)
+      .get("/api/articles?limit=not-a-number")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad Request: Invalid input");
+      });
+  });
+  test("responds with 400 if invalid input for page num", () => {
+    return request(app)
+      .get("/api/articles?p=not-a-number")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad Request: Invalid input");
+      });
+  });
+  test("responds with 400 if the page number is negative", () => {
+    return request(app)
+      .get("/api/articles?p=-10")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad Request: Invalid input");
+      });
+  });
+  test("responds with 400 if limit is negative", () => {
+    return request(app)
+      .get("/api/articles?limit=-10")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad Request: Invalid input");
+      });
+  });
+
+  test("responds with 400 if invalid input for limit", () => {
+    return request(app)
+      .get("/api/articles?topic=mitch&limit=not-a-number")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad Request: Invalid input");
+      });
+  });
+  test("responds with 400 if invalid input for page num", () => {
+    return request(app)
+      .get("/api/articles?topic=mitch&p=not-a-number")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad Request: Invalid input");
+      });
+  });
+  test("responds with 400 if the page number is negative", () => {
+    return request(app)
+      .get("/api/articles?topic=mitch&p=-10")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad Request: Invalid input");
+      });
+  });
+  test("responds with 400 if limit is negative", () => {
+    return request(app)
+      .get("/api/articles?topic=mitch&limit=-10")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad Request: Invalid input");
       });
   });
 });
