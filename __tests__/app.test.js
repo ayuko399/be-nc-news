@@ -648,7 +648,7 @@ describe("GET /api/articles(pagination)", () => {
   });
   test("serves articles with queries specifying the limit with the defaul page number 2", () => {
     return request(app)
-      .get("/api/articles?limit=5&p=2")
+      .get("/api/articles?limit=5&p=3")
       .expect(200)
       .then(({ body }) => {
         const { articles } = body.articles;
@@ -681,7 +681,7 @@ describe("GET /api/articles(pagination)", () => {
   });
   test("serves articles with queries specifying the limit. page num, and the topic", () => {
     return request(app)
-      .get("/api/articles?topic=mitch&limit=5&p=2")
+      .get("/api/articles?topic=mitch&limit=5&p=3")
       .expect(200)
       .then(({ body }) => {
         const { articles } = body.articles;
