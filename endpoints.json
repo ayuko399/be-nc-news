@@ -10,8 +10,12 @@
     }
   },
   "GET /api/articles": {
-    "description": "serves an array of all articles",
-    "queries": ["author", "topic", "sort_by", "order"],
+    "description": "serves an array of articles with paginaton support",
+    "queries": ["author", "topic", "sort_by", "order", "limit", "p"],
+    "defaults": {
+      "limit": "10 articles per page",
+      "p": "page 1"
+    },
     "exampleResponse": {
       "articles": [
         {
@@ -24,7 +28,8 @@
           "votes": 0,
           "comment_count": 6
         }
-      ]
+      ],
+      "total_count": 12
     }
   },
   "GET /api/articles/:article_id": {
