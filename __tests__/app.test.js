@@ -774,3 +774,80 @@ describe("GET /api/articles(pagination)", () => {
       });
   });
 });
+
+describe("GET /api/articles/:article_id/comments (pagination)", () => {
+  test("serves comments for the specified article with the default limit of 10 and p=1", () => {
+    return request(app)
+      .get("/api/articles/1/comments")
+      .expect(200)
+      .then(({ body }) => {
+        const { comments } = body;
+        expect(comments.length).toBe(10);
+      });
+  });
+  test("serves comments for the specified article with the specified limit", () => {
+    return request(app)
+      .get("/api/articles/1/comments?limit=5")
+      .expect(200)
+      .then(({ body }) => {
+        const { comments } = body;
+        expect(comments.length).toBe(5);
+        comments.forEach((comment) => {
+          expect(comment.article_id).toBe(1);
+        });
+      });
+  });
+  test("serves comments for the specified article with the specified limit", () => {
+    return request(app)
+      .get("/api/articles/1/comments?limit=5&p=3")
+      .expect(200)
+      .then(({ body }) => {
+        const { comments } = body;
+        expect(comments.length).toBe(1);
+        comments.forEach((comment) => {
+          expect(comment.article_id).toBe(1);
+        });
+      });
+  });
+  test("responds with an empty array when the page num exceeds the available comments", () => {
+    return request(app)
+      .get("/api/articles/1/comments?p=5")
+      .expect(200)
+      .then(({ body }) => {
+        const { comments } = body;
+        expect(comments).toEqual([]);
+      });
+  });
+  test("responds with 400 if the input for limit is invalid", () => {
+    return request(app)
+      .get("/api/articles/1/comments?limit=not-a-number")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad Request: Invalid input");
+      });
+  });
+  test("responds with 400 if the input for page num is invalid", () => {
+    return request(app)
+      .get("/api/articles/1/comments?p=not-a-number")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad Request: Invalid input");
+      });
+  });
+  test("responds with 400 if the input for page num is invalid", () => {
+    return request(app)
+      .get("/api/articles/1/comments?p=not-a-number")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad Request: Invalid input");
+      });
+  });
+  test("responds with 400 when query key is not valid", () => {
+    return request(app)
+      .get("/api/articles/1/comments?notvalid=1")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Invalid query parameter");
+      });
+  });
+});

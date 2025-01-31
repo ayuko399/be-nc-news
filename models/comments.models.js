@@ -5,11 +5,49 @@ const {
   checkCommentExists,
 } = require("../utility-functions/checkArticleExists");
 
-exports.selectCommentsByArticleId = (article_id) => {
+exports.selectCommentsByArticleId = (article_id, query) => {
   return checkArticleExists(article_id)
     .then(() => {
-      const SQLString = `SELECT * FROM comments WHERE article_id = $1 ORDER BY created_at DESC`;
-      return db.query(SQLString, [article_id]);
+      const args = [];
+      const { limit = 10, p = 1 } = query;
+      validQueries = ["limit", "p"];
+
+      let sqlString = `SELECT * FROM comments WHERE article_id = $1 ORDER BY created_at DESC`;
+      args.push(article_id);
+
+      const invalidQueryKeys = Object.keys(query).filter(
+        (key) => !validQueries.includes(key)
+      );
+
+      if (invalidQueryKeys.length > 0) {
+        return Promise.reject({ status: 400, msg: "Invalid query parameter" });
+      }
+
+      if (limit) {
+        if (isNaN(Number(limit))) {
+          return Promise.reject({
+            status: 400,
+            msg: "Bad Request: Invalid input",
+          });
+        }
+        sqlString += ` LIMIT $2`;
+        args.push(limit);
+      }
+      if (p) {
+        if (isNaN(Number(p)) || p < 1) {
+          return Promise.reject({
+            status: 400,
+            msg: "Bad Request: Invalid input",
+          });
+        }
+        if (p > 1) {
+          const offset = (p - 1) * limit;
+          sqlString += ` OFFSET $3`;
+          args.push(offset);
+        }
+      }
+
+      return db.query(sqlString, args);
     })
     .then(({ rows }) => {
       return rows;
