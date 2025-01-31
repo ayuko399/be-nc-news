@@ -49,7 +49,11 @@
   },
   "GET /api/articles/:article_id/comments": {
     "description": "serves comments with the specified article_id",
-    "queries": [],
+    "queries": ["limit", "p"],
+    "defaults": {
+      "limit": "10 comments per page",
+      "p": "page 1"
+    },
     "exampleResponse": [
       {
         "comment_id": 18,
