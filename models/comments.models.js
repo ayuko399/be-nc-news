@@ -4,6 +4,7 @@ const {
   checkArticleExists,
   checkCommentExists,
 } = require("../utility-functions/checkArticleExists");
+const { checkExists } = require("../utility-functions/checkExists");
 
 exports.selectCommentsByArticleId = (article_id, query) => {
   return checkArticleExists(article_id)
@@ -81,6 +82,13 @@ exports.deleteCommentById = (comment_id) => {
   return checkCommentExists(comment_id).then(() => {
     const sqlString = `DELETE FROM comments WHERE comment_id = $1`;
     return db.query(sqlString, [comment_id]);
+  });
+};
+
+exports.deleteCommentByArticleId = (article_id) => {
+  return checkExists("articles", "article_id", article_id).then(() => {
+    const sqlString = `DELETE FROM comments WHERE article_id = $1`;
+    return db.query(sqlString, [article_id]);
   });
 };
 

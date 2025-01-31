@@ -887,3 +887,25 @@ describe("POST /api/topics", () => {
       });
   });
 });
+
+describe("DELETE /api/articles/:article_id", () => {
+  test("deletes an article specified by id", () => {
+    return request(app).delete("/api/articles/1").expect(204);
+  });
+  test("responds with 404 if article does not exist", () => {
+    return request(app)
+      .delete("/api/articles/9999")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("article_id not found");
+      });
+  });
+  test("responds with 400 if article_id is invalid input", () => {
+    return request(app)
+      .delete("/api/articles/not-a-number")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad Request: Invalid input");
+      });
+  });
+});

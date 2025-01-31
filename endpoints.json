@@ -187,5 +187,11 @@
       "slug": "football",
       "description": "a type of sports"
     }
+  },
+  "DELETE /api/articles": {
+    "description": "deletes an article and corresponding comments specified by article_id",
+    "exampleRequest": "none required",
+    "queries": [],
+    "exampleResnponse": "none unless error"
   }
 }
