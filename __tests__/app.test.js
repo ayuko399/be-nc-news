@@ -755,4 +755,22 @@ describe("GET /api/articles(pagination)", () => {
         expect(body.msg).toBe("Bad Request: Invalid input");
       });
   });
+  test("responds with an empty array for a page num beyond available articles", () => {
+    return request(app)
+      .get("/api/articles?limit=10&p=3")
+      .expect(200)
+      .then(({ body }) => {
+        const { articles } = body;
+        expect(articles).toEqual([]);
+      });
+  });
+  test("responds with an empty array for a page num beyond available articles with topic specified", () => {
+    return request(app)
+      .get("/api/articles?topic=mitch&limit=10&p=3")
+      .expect(200)
+      .then(({ body }) => {
+        const { articles } = body;
+        expect(articles).toEqual([]);
+      });
+  });
 });
