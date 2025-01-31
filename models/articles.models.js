@@ -4,6 +4,8 @@ const {
 } = require("../utility-functions/checkArticleExists");
 const { checkExists } = require("../utility-functions/checkExists");
 
+const { deleteCommentByArticleId } = require("../models/comments.models");
+
 exports.selectArticleById = (article_id) => {
   const SQLString = `
   SELECT
@@ -159,4 +161,17 @@ exports.createArticle = (content = {}) => {
       return rows[0];
     });
   });
+};
+
+exports.deleteArticleById = (article_id) => {
+  return checkExists("articles", "article_id", article_id)
+    .then(() => {
+      return deleteCommentByArticleId(article_id);
+    })
+    .then(() => {
+      const sqlString = `DELETE FROM articles WHERE article_id = $1`;
+      return db.query(sqlString, [article_id]).then((rows) => {
+        return rows[0];
+      });
+    });
 };
