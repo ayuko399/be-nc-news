@@ -852,7 +852,7 @@ describe("GET /api/articles/:article_id/comments (pagination)", () => {
   });
 });
 
-describe.only("POST /api/topics", () => {
+describe("POST /api/topics", () => {
   test("posts a new topic", () => {
     const newTopic = { slug: "test topic", description: "test description" };
     return request(app)
