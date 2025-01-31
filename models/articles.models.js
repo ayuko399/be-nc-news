@@ -75,11 +75,12 @@ exports.selectArticles = (query = {}) => {
   }
 
   let offset = 0;
-  if (isNaN(Number(p)) || p < 1) {
+
+  if (isNaN(Number(p)) || p < 1 || isNaN(Number(limit))) {
     return Promise.reject({ status: 400, msg: "Bad Request: Invalid input" });
   }
   if (p > 1) {
-    offset = p * limit;
+    offset = (p - 1) * limit;
   }
 
   if (topic) {
