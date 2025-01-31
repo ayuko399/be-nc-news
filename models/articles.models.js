@@ -23,8 +23,14 @@ exports.selectArticleById = (article_id) => {
 };
 
 exports.selectArticles = (query = {}) => {
-  const { topic, sort_by = "created_at", order = "desc" } = query;
-  const validQueries = ["topic", "sort_by", "order"];
+  const {
+    topic,
+    sort_by = "created_at",
+    order = "desc",
+    limit = 10,
+    p = 1,
+  } = query;
+  const validQueries = ["topic", "sort_by", "order", "limit", "p"];
   const validOrder = ["asc", "desc"];
   const args = [];
   const greenList = [
@@ -68,30 +74,49 @@ exports.selectArticles = (query = {}) => {
     });
   }
 
+  let offset = 0;
+  if (isNaN(Number(p)) || p < 1) {
+    return Promise.reject({ status: 400, msg: "Bad Request: Invalid input" });
+  }
+  if (p > 1) {
+    offset = p * limit;
+  }
+
   if (topic) {
     return checkExists("topics", "topic", topic)
       .then(() => {
         sqlString += ` WHERE articles.topic = $1`;
-        args.push(topic);
         sqlString += ` 
         GROUP BY articles.article_id
         ORDER BY ${sort_by} ${order}`;
+        sqlString += ` LIMIT $2 OFFSET $3`;
+        args.push(topic, limit, offset);
         return db.query(sqlString, args);
       })
       .then(({ rows }) => {
-        return rows;
+        if (rows.length === 0) {
+          return [];
+        }
+        const result = { articles: rows };
+        result.total_count = rows.length;
+        return result;
       });
   }
 
   sqlString += ` 
   GROUP BY articles.article_id
-  ORDER BY ${sort_by} ${order}`;
+  ORDER BY ${sort_by} ${order}
+  LIMIT $1 OFFSET $2`;
+  args.push(limit, offset);
 
   return db.query(sqlString, args).then(({ rows }) => {
     if (rows.length === 0) {
       return [];
     }
-    return rows;
+    const result = { articles: rows };
+    result.total_count = rows.length;
+
+    return result;
   });
 };
 
@@ -128,11 +153,9 @@ exports.createArticle = (content = {}) => {
   const topicExists = checkExists("topics", "topic", topic);
   const usernameExists = checkExists("users", "username", author);
 
-  return Promise.all([topicExists, usernameExists]).then(
-    ([topicResult, userResult]) => {
-      return db.query(sqlString, args).then(({ rows }) => {
-        return rows[0];
-      });
-    }
-  );
+  return Promise.all([topicExists, usernameExists]).then(() => {
+    return db.query(sqlString, args).then(({ rows }) => {
+      return rows[0];
+    });
+  });
 };

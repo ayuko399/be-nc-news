@@ -25,7 +25,7 @@ app.all("*", (req, res) => {
 app.use((err, req, res, next) => {
   if (err.status) {
     res.status(err.status).send({ msg: err.msg });
-  } else if (err.code === "22P02") {
+  } else if (err.code === "22P02" || err.code === "2201W") {
     res.status(400).send({ msg: "Bad Request: Invalid input" });
   } else if (err.code === "23502") {
     res.status(400).send({ msg: "Bad Request: missing required fields" });
