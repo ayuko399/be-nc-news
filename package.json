@@ -30,10 +30,11 @@
     "supertest": "^7.0.0"
   },
   "dependencies": {
-    "pg-format": "^1.0.4",
+    "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
-    "pg": "^8.13.1"
+    "pg": "^8.13.1",
+    "pg-format": "^1.0.4"
   },
   "jest": {
     "setupFilesAfterEnv": [
