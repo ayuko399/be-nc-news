@@ -15,5 +15,8 @@ if (ENV === "production") {
   config.connectionString = process.env.DATABASE_URL;
   config.ssl = { rejectUnauthorized: false };
   config.max = 2;
+} else {
+  config.database = process.env.PGDATABASE;
 }
+
 module.exports = new Pool(config);
