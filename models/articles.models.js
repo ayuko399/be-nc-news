@@ -43,6 +43,7 @@ exports.selectArticles = (query = {}) => {
     "topic",
     "votes",
     "article_img_url",
+    "comment_count",
   ];
 
   let sqlString = `
