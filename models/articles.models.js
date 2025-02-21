@@ -124,16 +124,222 @@ exports.selectArticleById = (article_id) => {
 //   });
 // };
 
+// exports.selectArticles = (query = {}) => {
+//   const {
+//     topic,
+//     sort_by = "created_at",
+//     order = "desc",
+//     limit = 10,
+//     p = 1,
+//   } = query;
+
+//   const validQueries = ["topic", "sort_by", "order", "limit", "p"];
+//   const validOrder = ["asc", "desc"];
+//   const greenList = [
+//     "created_at",
+//     "author",
+//     "title",
+//     "article_id",
+//     "topic",
+//     "votes",
+//     "article_img_url",
+//     "comment_count",
+//   ];
+
+//   let sqlString = `
+//     SELECT articles.*,
+//     COUNT(comments.comment_id)::INT AS comment_count
+//     FROM articles
+//     LEFT JOIN comments ON articles.article_id = comments.article_id
+//   `;
+
+//   let countQuery = `SELECT COUNT(*)::INT AS total_count FROM articles`;
+
+//   const queryKeys = Object.keys(query);
+//   const invalidQueryKeys = queryKeys.filter(
+//     (key) => !validQueries.includes(key)
+//   );
+
+//   if (invalidQueryKeys.length > 0) {
+//     return Promise.reject({ status: 400, msg: "Invalid query parameter" });
+//   }
+
+//   if (!greenList.includes(sort_by)) {
+//     return Promise.reject({
+//       status: 400,
+//       msg: "Bad request: Invalid sort_by column",
+//     });
+//   }
+
+//   if (!validOrder.includes(order)) {
+//     return Promise.reject({
+//       status: 400,
+//       msg: "Bad request: Invalid order value",
+//     });
+//   }
+
+//   if (isNaN(Number(p)) || p < 1 || isNaN(Number(limit))) {
+//     return Promise.reject({ status: 400, msg: "Bad Request: Invalid input" });
+//   }
+
+//   let offset = (p - 1) * limit;
+//   const args = [];
+
+//   if (topic) {
+//     return checkExists("topics", "topic", topic)
+//       .then(() => db.query(countQuery + ` WHERE topic = $1`, [topic])) // Get total count
+//       .then(({ rows }) => {
+//         const total_count = rows[0].total_count;
+
+//         sqlString += ` WHERE articles.topic = $1`;
+//         sqlString += `
+//           GROUP BY articles.article_id
+//           ORDER BY ${sort_by} ${order}
+//           LIMIT $2 OFFSET $3`;
+
+//         args.push(topic, limit, offset);
+
+//         return db.query(sqlString, args).then(({ rows }) => {
+//           if (rows.length === 0) {
+//             return [];
+//           }
+//           return { articles: rows, total_count };
+//         });
+//       });
+//   }
+
+//   return db.query(countQuery).then(({ rows }) => {
+//     const total_count = rows[0].total_count;
+
+//     sqlString += `
+//       GROUP BY articles.article_id
+//       ORDER BY ${sort_by} ${order}
+//       LIMIT $1 OFFSET $2`;
+
+//     args.push(limit, offset);
+
+//     return db.query(sqlString, args).then(({ rows }) => {
+//       if (rows.length === 0) {
+//         return [];
+//       }
+//       return { articles: rows, total_count };
+//     });
+//   });
+// };
+
+// exports.selectArticles = (query = {}) => {
+//   const {
+//     topic,
+//     author,
+//     sort_by = "created_at",
+//     order = "desc",
+//     limit = 10,
+//     p = 1,
+//   } = query;
+
+//   const validQueries = ["topic", "sort_by", "order", "limit", "p", "author"];
+//   const validOrder = ["asc", "desc"];
+//   const greenList = [
+//     "created_at",
+//     "author",
+//     "title",
+//     "article_id",
+//     "topic",
+//     "votes",
+//     "article_img_url",
+//     "comment_count",
+//   ];
+
+//   let sqlString = `
+//     SELECT articles.*,
+//     COUNT(comments.comment_id)::INT AS comment_count
+//     FROM articles
+//     LEFT JOIN comments ON articles.article_id = comments.article_id
+//   `;
+
+//   let countQuery = `SELECT COUNT(*)::INT AS total_count FROM articles`;
+
+//   const queryKeys = Object.keys(query);
+//   const invalidQueryKeys = queryKeys.filter(
+//     (key) => !validQueries.includes(key)
+//   );
+
+//   if (invalidQueryKeys.length > 0) {
+//     return Promise.reject({ status: 400, msg: "Invalid query parameter" });
+//   }
+
+//   if (!greenList.includes(sort_by)) {
+//     return Promise.reject({
+//       status: 400,
+//       msg: "Bad request: Invalid sort_by column",
+//     });
+//   }
+
+//   if (!validOrder.includes(order)) {
+//     return Promise.reject({
+//       status: 400,
+//       msg: "Bad request: Invalid order value",
+//     });
+//   }
+
+//   if (isNaN(Number(p)) || p < 1 || isNaN(Number(limit))) {
+//     return Promise.reject({ status: 400, msg: "Bad Request: Invalid input" });
+//   }
+
+//   let offset = (p - 1) * limit;
+//   const args = [];
+//   let conditions = [];
+
+//   const checkPromises = [];
+
+//   if (topic) {
+//     checkPromises.push(checkExists("topics", "topic", topic));
+//     conditions.push(`articles.topic = $${args.length + 1}`);
+//     args.push(topic);
+//   }
+
+//   if (author) {
+//     checkPromises.push(checkExists("users", "username", author));
+//     conditions.push(`articles.author = $${args.length + 1}`);
+//     args.push(author);
+//   }
+
+//   return Promise.all(checkPromises).then(() => {
+//     if (conditions.length > 0) {
+//       sqlString += ` WHERE ${conditions.join(" AND ")}`;
+//       countQuery += ` WHERE ${conditions.join(" AND ")}`;
+//     }
+
+//     sqlString += `
+//       GROUP BY articles.article_id
+//       ORDER BY ${sort_by} ${order}
+//       LIMIT $${args.length + 1} OFFSET $${args.length + 2}`;
+
+//     args.push(limit, offset);
+
+//     return db
+//       .query(countQuery, args.slice(0, conditions.length))
+//       .then(({ rows }) => {
+//         const total_count = rows[0]?.total_count || 0;
+
+//         return db.query(sqlString, args).then(({ rows }) => {
+//           return { articles: rows, total_count };
+//         });
+//       });
+//   });
+// };
+
 exports.selectArticles = (query = {}) => {
   const {
     topic,
+    author,
     sort_by = "created_at",
     order = "desc",
     limit = 10,
     p = 1,
   } = query;
 
-  const validQueries = ["topic", "sort_by", "order", "limit", "p"];
+  const validQueries = ["topic", "author", "sort_by", "order", "limit", "p"];
   const validOrder = ["asc", "desc"];
   const greenList = [
     "created_at",
@@ -147,7 +353,7 @@ exports.selectArticles = (query = {}) => {
   ];
 
   let sqlString = `
-    SELECT articles.*, 
+    SELECT articles.*,
     COUNT(comments.comment_id)::INT AS comment_count
     FROM articles
     LEFT JOIN comments ON articles.article_id = comments.article_id
@@ -185,19 +391,43 @@ exports.selectArticles = (query = {}) => {
   let offset = (p - 1) * limit;
   const args = [];
 
+  const checkPromises = [];
+
   if (topic) {
-    return checkExists("topics", "topic", topic)
-      .then(() => db.query(countQuery + ` WHERE topic = $1`, [topic])) // Get total count
+    checkPromises.push(checkExists("topics", "topic", topic));
+  }
+
+  if (author) {
+    checkPromises.push(checkExists("users", "username", author));
+  }
+
+  return Promise.all(checkPromises).then(() => {
+    const conditions = [];
+    if (topic) {
+      conditions.push(`articles.topic = $${args.length + 1}`);
+      args.push(topic);
+    }
+    if (author) {
+      conditions.push(`articles.author = $${args.length + 1}`);
+      args.push(author);
+    }
+
+    if (conditions.length > 0) {
+      sqlString += ` WHERE ${conditions.join(" AND ")}`;
+      countQuery += ` WHERE ${conditions.join(" AND ")}`;
+    }
+
+    sqlString += `
+      GROUP BY articles.article_id
+      ORDER BY ${sort_by} ${order}
+      LIMIT $${args.length + 1} OFFSET $${args.length + 2}`;
+
+    args.push(limit, offset);
+
+    return db
+      .query(countQuery, args.slice(0, conditions.length))
       .then(({ rows }) => {
         const total_count = rows[0].total_count;
-
-        sqlString += ` WHERE articles.topic = $1`;
-        sqlString += ` 
-          GROUP BY articles.article_id
-          ORDER BY ${sort_by} ${order}
-          LIMIT $2 OFFSET $3`;
-
-        args.push(topic, limit, offset);
 
         return db.query(sqlString, args).then(({ rows }) => {
           if (rows.length === 0) {
@@ -206,24 +436,6 @@ exports.selectArticles = (query = {}) => {
           return { articles: rows, total_count };
         });
       });
-  }
-
-  return db.query(countQuery).then(({ rows }) => {
-    const total_count = rows[0].total_count;
-
-    sqlString += `
-      GROUP BY articles.article_id
-      ORDER BY ${sort_by} ${order}
-      LIMIT $1 OFFSET $2`;
-
-    args.push(limit, offset);
-
-    return db.query(sqlString, args).then(({ rows }) => {
-      if (rows.length === 0) {
-        return [];
-      }
-      return { articles: rows, total_count };
-    });
   });
 };
 
